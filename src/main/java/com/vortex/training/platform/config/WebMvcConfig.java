@@ -13,11 +13,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private ResponseResultInterceptor resultInterceptor;
 
-    */
-/**
-     * 将拦截器注册到spring mvc
-     * @param registry registry
-     *//*
+
+
 
     public void addInterceptors(InterceptorRegistry registry) {
         InterceptorRegistration registration = registry.addInterceptor(resultInterceptor);
