@@ -1,0 +1,52 @@
+spring.datasource:
+  driver-class-name: com.mysql.cj.jdbc.Driver
+  url: jdbc:mysql://192.168.16.31/training_platform?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+  username: vortex
+  password: vortex2016
+
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    producer:
+      acks: -1
+      buffer-memory: 40960
+      batch-size: 4096
+      retries: 3
+      compression-type: none
+      client-id: training-platform-producer
+      linger-ms: 1
+      request-timeout: 60000
+      interceptor-classes: "com.vortex.training.platform.mq.kafka.KafkaProducerInterceptor"
+    consumer:
+      # 用于表示该consumer想要加入到哪个group中。默认值是 “”。
+      group-id: training-platform-consumer
+      # 当consumer向一个broker发起fetch请求时，broker返回的records的大小最小值。如果broker中数据量不够的话会wait，直到数据大小满足这个条件。
+      fetch-min-size: 1
+      # Fetch请求发给broker后，在broker中可能会被阻塞的（当topic中records的总size小于fetch.min.bytes时），此时这个fetch请求耗时就会比较长。这个配置就是来配置consumer最多等待response多久。
+      fetch-max-wait: 500
+      # 心跳间隔。心跳是在consumer与coordinator之间进行的。心跳是确定consumer存活，加入或者退出group的有效手段。这个值必须设置的小于session.timeout.ms，因为：
+      # 当Consumer由于某种原因不能发Heartbeat到coordinator时，并且时间超过session.timeout.ms时，就会认为该consumer已退出，它所订阅的partition会分配到同一group 内的其它的consumer上。
+      heartbeat-interval: 3000
+      # Consumer 在commit offset时有两种模式：自动提交，手动提交。手动提交:通过调用commitSync、commitAsync方法的方式完成offset的提交。
+      # 自动提交：是Kafka Consumer会在后台周期性的去commit。
+      enable-auto-commit: false
+      # 这个配置项，是告诉Kafka Broker在发现kafka在没有初始offset，或者当前的offset是一个不存在的值（如果一个record被删除，就肯定不存在了）时，该如何处理。它有4种处理方式：
+      #1） earliest：自动重置到最早的offset。
+      #2） latest：看上去重置到最晚的offset。
+      #3） none：如果边更早的offset也没有的话，就抛出异常给consumer，告诉consumer在整个consumer group中都没有发现有这样的offset。
+      # 如果不是上述3种，只抛出异常给consumer。
+      auto-offset-reset: latest
+      # Consumer每次调用poll()时取到的records的最大数。
+      max-poll-records: 50
+      # Consumer进程的标识。如果设置一个人为可读的值，跟踪问题会比较方便。
+      client-id: training-platform-consumer
+    topic:
+      name: topic_model
+      partitions: 3
+      replicas: 3
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.16.31:${eureka.port:8761}/eureka/

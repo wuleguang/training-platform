@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vortex.training.platform.mapper.ApplicationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.vortex.training.platform.entity.Application">
+        <id column="application_id" property="applicationId" />
+        <result column="application_type" property="applicationType" />
+        <result column="application_version" property="applicationVersion" />
+        <result column="training_status" property="trainingStatus" />
+        <result column="training_start_time" property="trainingStartTime" />
+        <result column="training_end_time" property="trainingEndTime" />
+        <result column="appraisal_report" property="appraisalReport" />
+        <result column="model_id" property="modelId" />
+        <result column="dataset_id" property="datasetId" />
+        <result column="label_ids" property="labelIds" />
+    </resultMap>
+
+    <!-- 关联数据集，一对一 -->
+    <resultMap id="detailResultMap" type="com.vortex.training.platform.dto.ApplicationDetailDto" extends="BaseResultMap">
+        <association property="datasetDetail" javaType="com.vortex.training.platform.dto.DatasetDetailDto">
+            <id column="dataset_id" property="datasetId" />
+            <result column="dataset_name" property="datasetName" />
+            <result column="create_time" property="createTime" />
+            <result column="update_time" property="updateTime" />
+            <result column="dataset_type" property="datasetType" />
+        </association>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        application_id, application_type, application_version, training_status, training_start_time, training_end_time, appraisal_report, model_id, dataset_id, label_ids
+    </sql>
+
+    <select id="findListBy" parameterType="com.vortex.training.platform.dto.ApplicationFindDto"
+            resultMap="detailResultMap">
+        SELECT * FROM application
+        LEFT JOIN dataset ON dataset.dataset_id = application.dataset_id
+        <where>
+            <if test="modelId != null">
+                application.model_id = #{modelId}
+            </if>
+            <if test="applicationType != null">
+                AND application.application_type = #{applicationType}
+            </if>
+        </where>
+        ORDER BY application.application_version DESC
+    </select>
+</mapper>

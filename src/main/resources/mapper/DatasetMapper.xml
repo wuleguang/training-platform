@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vortex.training.platform.mapper.DatasetMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.vortex.training.platform.entity.Dataset">
+        <id column="dataset_id" property="datasetId" />
+        <result column="dataset_name" property="datasetName" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="dataset_type" property="datasetType" />
+    </resultMap>
+
+    <!-- 关联Label，一对多 -->
+    <resultMap id="detailResultMap" type="com.vortex.training.platform.dto.DatasetDetailDto" extends="BaseResultMap">
+        <collection property="labelDetailList" ofType="com.vortex.training.platform.dto.LabelDetailDto">
+            <id column="label_id" property="labelId" />
+            <result column="label_name" property="labelName" />
+            <result column="images" property="images" />
+            <result column="create_time" property="createTime" />
+        </collection>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        dataset_id, dataset_name, create_time, update_time, dataset_type
+    </sql>
+
+    <select id="findPageBy" parameterType="com.vortex.training.platform.dto.DatasetFindDto"
+            resultMap="detailResultMap">
+        SELECT * FROM dataset
+        LEFT JOIN label ON dataset.dataset_id = label.dataset_id
+        <where>
+            <if test="datasetName != null">
+                <![CDATA[ dataset.dataset_name LIKE CONCAT('%',#{datasetName} ,'%' )]]>
+            </if>
+            <if test="datasetType != null">
+                AND dataset.dataset_type = #{datasetType}
+            </if>
+        </where>
+        ORDER BY dataset.update_time DESC
+    </select>
+</mapper>

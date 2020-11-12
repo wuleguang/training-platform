@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vortex.training.platform.mapper.ModelMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.vortex.training.platform.entity.Model">
+        <id column="model_id" property="modelId" />
+        <result column="model_name" property="modelName" />
+        <result column="model_describe" property="modelDescribe" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="model_type" property="modelType" />
+    </resultMap>
+
+    <!-- 关联Application，一对多 -->
+    <resultMap id="detailResultMap" type="com.vortex.training.platform.dto.ModelDetailDto" extends="BaseResultMap">
+        <collection property="applicationDetailList" ofType="com.vortex.training.platform.dto.ApplicationDetailDto">
+            <id column="application_id" property="applicationId" />
+            <result column="application_type" property="applicationType" />
+            <result column="application_version" property="applicationVersion" />
+            <result column="training_status" property="trainingStatus" />
+            <result column="training_start_time" property="trainingStartTime" />
+            <result column="training_end_time" property="trainingEndTime" />
+            <result column="appraisal_report" property="appraisalReport" />
+        </collection>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        model_id, model_name, model_describe, create_time, update_time, model_type
+    </sql>
+
+    <select id="findPageBy" parameterType="com.vortex.training.platform.dto.ModelFindDto"
+            resultMap="detailResultMap">
+        SELECT * FROM model
+        LEFT JOIN application ON model.model_id = application.model_id
+        <where>
+            <if test="modelName != null">
+                <![CDATA[ model.model_name LIKE CONCAT('%',#{modelName} ,'%' )]]>
+            </if>
+            <if test="modelDescribe != null">
+                AND <![CDATA[ model.model_describe LIKE CONCAT('%',#{modelDescribe} ,'%' )]]>
+            </if>
+            <if test="modelType != null">
+                AND model.model_type = #{modelType}
+            </if>
+        </where>
+        ORDER BY model.update_time DESC
+    </select>
+</mapper>

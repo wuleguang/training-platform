@@ -1,0 +1,10 @@
+spring.datasource:
+  driver-class-name: com.mysql.cj.jdbc.Driver
+  url: jdbc:mysql://192.168.16.31/training_platform?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&useSSL=false&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+  username: vortex
+  password: vortex2016
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.16.31:${eureka.port:8761}/eureka/
